@@ -16,14 +16,42 @@ struct ContentView: View {
     private let borderOrange = Color("borderOrange")
     private let borderYellow = Color.yellow
     private let borderPink = Color.pink
+    @State private var isDragging: Bool = false
     
     private let presets = [100, 150, 180, 200, 220]
     
     var body: some View {
-        VStack(spacing: 20) {
-            VStack(spacing: 32){
+        VStack(spacing: 8) {
+            VStack (alignment:.leading){
                 HStack{
-                    Image(systemName: "drop.degreesign")
+                    Image(systemName: "fan")
+                    Text("Cooking mode")
+                    Spacer()
+                    Image(systemName: "chevron.down")
+                        .frame(width: 32, height: 32)
+                        .background(Color("borderOne"))
+                        .clipShape(Circle())
+                }
+                .font(.headline)
+                .fontWeight(.medium)
+                .foregroundStyle(Color("textTertiary"))
+                Text("Grill")
+                    .font(.largeTitle)
+                    .fontWeight(.medium)
+                    .contentTransition(.numericText())
+                    .foregroundStyle(Color("textPrimary"))
+               
+            }
+            .padding(16)
+            .background(Color("bgSecondary"))
+            .clipShape(RoundedRectangle(cornerRadius: 24))
+            
+            .onAppear {
+                dragAngle = temperature  // Direct assignment, no mapping needed
+            }
+            VStack(spacing: 24){
+                HStack{
+                    Image(systemName: "drop.degreesign.fill")
                     Text("Temperature")
                     Spacer()
                     Image(systemName: "chevron.down")
@@ -39,7 +67,7 @@ struct ContentView: View {
                     // Background track
                     Circle()
                         .trim(from: startAngle/360, to: endAngle/360)
-                        .stroke(Color("borderOne"), style: .init(lineWidth: 20, lineCap: .round))
+                        .stroke(Color("borderOne"), style: .init(lineWidth:isDragging ? 30 : 20, lineCap: .round))
                         .rotationEffect(.degrees(-90))
                     
                     
@@ -67,13 +95,14 @@ struct ContentView: View {
                         .font(.system(size: 54, weight: .medium))
                         .contentTransition(.numericText())
                         .foregroundStyle(Color("textPrimary"))
+                        .scaleEffect(isDragging ? 1.2 : 1)
                     
                     // Draggable handle
                     Circle()
                         .fill(Color("textPrimary"))
                         .stroke(Color("bgSecondary"), lineWidth: 7)
                         .frame(width: 28, height: 28)
-                        .offset(y: -140) // Radius of the circle
+                        .offset(y: -150) // Radius of the circle
                         .rotationEffect(.degrees(dragAngle))
                         .gesture(
                             DragGesture()
@@ -83,24 +112,30 @@ struct ContentView: View {
                                     
                                     // Only update if within valid range (0-270)
                                     if rawAngle >= 0 && rawAngle <= 270 {
-                                        withAnimation{
+                                        withAnimation(.spring(duration:0.2)){
+                                            isDragging = true
                                             dragAngle = rawAngle
                                             temperature = rawAngle
                                         }
                                     }
                                     // If outside range, don't update anything - handle stays at last valid position
                                 }
+                                .onEnded({ value in
+                                    withAnimation(.spring(duration:0.2)){
+                                        isDragging = false
+                                    }
+                                })
                         )
                 }
-                .frame(width: 280, height: 280)
-                .padding(.vertical, 16)
+                .frame(width: 300, height: 300)
+                .padding(.vertical, 8)
                 .onAppear {
                     dragAngle = temperature  // Direct assignment, no mapping needed
                 }
                 Rectangle()
                     .frame(height: 2)
                     .foregroundStyle(Color("bg"))
-                VStack{
+                VStack(spacing:12){
                     // Preset buttons
                     HStack(spacing: 8) {
                         ForEach(presets, id: \.self) { preset in
@@ -155,7 +190,7 @@ struct ContentView: View {
             .background(Color("bgSecondary"))
             .clipShape(RoundedRectangle(cornerRadius: 24))
             // Cancel/Confirm buttons
-            HStack(spacing: 16) {
+          /*  HStack(spacing: 16) {
                 Button("Confirm") {
                     // Handle confirm action
                 }
@@ -165,7 +200,7 @@ struct ContentView: View {
                 .foregroundStyle(Color("bg"))
                 .cornerRadius(16)
                 .padding(.horizontal, 32)
-            }
+            } */
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -173,7 +208,7 @@ struct ContentView: View {
     }
     private func getColorForTemperature(_ temp: Double) -> Color {
           switch temp {
-          case 150..<180:  // First third: Green to Orange
+          case 135..<180:  // First third: Green to Orange
               return borderMain.interpolated(
                 to: borderYellow,
                   fraction: temp / 90

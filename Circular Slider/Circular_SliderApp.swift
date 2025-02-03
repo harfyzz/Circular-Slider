@@ -11,7 +11,7 @@ import SwiftUI
 struct Circular_SliderApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            VerticalTemp()
         }
     }
 }
