@@ -151,7 +151,7 @@ struct VerticalTemp: View {
                                 slider.setInput("isActive?", value: false)
                             }
                     )
-                    if slider.temperature{
+                /*    if slider.temperature{
                         //label text
                         valueText.view()
                             .frame(height: 30)
@@ -175,7 +175,7 @@ struct VerticalTemp: View {
                                    .animation(.spring(), value: temperature)
                                    .animation(.spring(), value: humidity)
                             
-                    }
+                    } */
                             
                     Spacer()
                 }
